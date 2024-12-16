@@ -27,7 +27,7 @@ if (playedCard.value >= tableCard.value)
     currentValue = playedCard.value;
 
 - Player has no card to put on the table
-if(player.hand.filter((card) => card < game.tableCard).length <= 0)
+if(player.hand.filter((card) => card.value < game.tableCard.value).length <= 0)
 
 - Card structure to follow
 struct Card{
