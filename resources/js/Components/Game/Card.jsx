@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Card({ suit, value, faceDown = false }) {
+export default function Card({ suit, value, faceDown = false, onClick }) {
     // Suit symbols and colors
     const suits = {
         hearts: { symbol: '♥', color: 'text-red-600' },
@@ -31,7 +31,11 @@ export default function Card({ suit, value, faceDown = false }) {
     const suitInfo = suits[suit] || suits.spades;
 
     return (
-        <div className="w-24 h-32 bg-white rounded-lg shadow-lg relative select-none">
+        <div 
+            className={`w-24 h-32 bg-white rounded-lg shadow-lg relative select-none 
+                ${onClick ? 'cursor-pointer transform transition-transform hover:scale-105 hover:shadow-xl active:scale-95' : ''}`}
+            onClick={onClick}
+        >
             {/* Top left value and suit */}
             <div className="absolute top-2 left-2">
                 <div className={`text-lg font-bold ${suitInfo.color}`}>
