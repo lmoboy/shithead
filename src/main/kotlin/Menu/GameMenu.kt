@@ -37,17 +37,14 @@ fun GameMenu(
                 )
                 Hand(
                     cards = HandList,
-                    hidden = false,
                 )
 
                 Hand(
                     cards = HandList,
-                    hidden = false,
                 )
 
                 Hand(
                     cards = HandList,
-                    hidden = true,
                 )
             }
         }

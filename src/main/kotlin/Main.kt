@@ -9,12 +9,6 @@ import androidx.compose.ui.window.application
 @Composable
 @Preview
 fun App() {
-
-
-    var HandList by remember { mutableStateOf(listOf<String>("4", "2", "J", "Q", "K")) }
-    var PrivateLobby by remember { mutableStateOf(false) }
-    var LobbyCode by remember { mutableStateOf("") }
-
     var CurrentMenu by remember { mutableStateOf("Main") }
 
     MaterialTheme {
