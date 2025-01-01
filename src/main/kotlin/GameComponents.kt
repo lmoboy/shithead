@@ -30,13 +30,13 @@ import kotlin.math.round
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Card(
-    delay: Int = 0,
+    index: Int = 0,
     value: String,
     hidden: Boolean = false,
     cardSize: Dp = 120.dp
 ) {
     val cardRatio = 1.33333f
-    var delay by remember { mutableStateOf(delay * 100) }
+    val delay = index * 100
     var show by remember { mutableStateOf(false) }
     var globalPosition by remember { mutableStateOf(Offset.Zero) }
     AnimatedVisibility(
@@ -122,7 +122,7 @@ fun Hand(
         ) {
         Text(player.toString())
         for (card in cards) {
-            Card(value = card[1], hidden = player != 0, delay = cards.indexOf(card))
+            Card(value = card[1], hidden = player != 0, index = cards.indexOf(card))
         }
     }
 }
