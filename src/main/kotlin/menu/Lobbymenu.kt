@@ -1,4 +1,4 @@
-package Menu
+package menu
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -11,15 +11,18 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.delay
 
 @Composable
 fun LobbyMenu(
+
     HandleBack: (String) -> Unit
 ) {
+    var ShouldShow by remember { mutableStateOf(false) }
     var LobbyCode by remember { mutableStateOf("") }
     var PrivateLobby by remember { mutableStateOf(false) }
     AnimatedVisibility(
-        visible = true,
+        visible = ShouldShow,
         label = "Join lobby",
         enter = slideInVertically(initialOffsetY = { fullHeight -> -fullHeight }),
         exit = slideOutVertically(targetOffsetY = { fullHeight -> fullHeight })
@@ -91,5 +94,10 @@ fun LobbyMenu(
             }
 
         }
+    }
+
+    LaunchedEffect(Unit) {
+        delay(1)
+        ShouldShow = true
     }
 }
