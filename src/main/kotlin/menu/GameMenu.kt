@@ -1,6 +1,6 @@
 package menu
 
-import Hand
+import Table
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -20,8 +20,16 @@ fun GameMenu(
         listOf(
             listOf("Spades", "4"),
             listOf("Hearts", "2"),
-            listOf("Diamonds", "J"),
-            listOf("Clubs", "Q"),
+            listOf("Spades", "4"),
+            listOf("Hearts", "2"),
+            listOf("Spades", "4"),
+            listOf("Hearts", "2"),
+            listOf("Spades", "4"),
+            listOf("Hearts", "2"),
+            listOf("Spades", "4"),
+            listOf("Hearts", "2"),
+            listOf("Spades", "4"),
+            listOf("Hearts", "2"),
             listOf("Spades", "K")
         )
 ) {
@@ -36,10 +44,11 @@ fun GameMenu(
             horizontalArrangement = Arrangement.aligned(Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Hand(
-                cards = HandList,
-                player = 0
+
+            Table(
+                cards = HandList
             )
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
