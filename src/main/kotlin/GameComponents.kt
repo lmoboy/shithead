@@ -1,10 +1,10 @@
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInOutCirc
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideOut
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -23,10 +23,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 
 
@@ -35,20 +33,56 @@ import kotlinx.coroutines.delay
 fun Card(
     vertical: Boolean = false,
     index: Int = 0,
-    value: String,
+    spacing: Int = 0,
+    value: Int = 1,
     hidden: Boolean = false,
-    cardSize: Dp = 120.dp
+    cardSize: Dp = 120.dp,
+    handleClick: (value: Int) -> Unit = {}
 ) {
+    var isHovered by remember { mutableStateOf(false) }
+
     val cardRatio = 1.33333f
     val delay = 100 * index
     var show by remember { mutableStateOf(false) }
     var globalPosition by remember { mutableStateOf(Offset.Zero) }
+
+
+    var hoverOffsetY = animateFloatAsState(
+        targetValue = if (isHovered) -40f else -0f,
+
+        animationSpec = tween(
+            durationMillis = 200,
+            easing = EaseInOutCirc
+        )
+
+    )
+
     AnimatedVisibility(
         visible = show,
         modifier = Modifier
-            .absoluteOffset(x = if (index <= 5) 0.dp else -(10 * index).dp)
-            .onGloballyPositioned { position -> globalPosition = position.positionInRoot() },
-        label = "Main menu",
+            .zIndex(if (isHovered) 10f else 0f)
+            .offset {
+                IntOffset(
+                    x = if (!vertical) (index - 1) * -spacing * 10 else 0,
+                    y = if (vertical) (index - 1) * -spacing * 5 else 0
+                )
+            }
+            .graphicsLayer {
+                this.translationY = hoverOffsetY.value
+            }
+            .onPointerEvent(PointerEventType.Enter) {
+                if (!hidden)
+                    isHovered = true
+
+            }
+            .onPointerEvent(PointerEventType.Exit) {
+                if (!hidden)
+                    isHovered = false
+            }
+            .onGloballyPositioned { position ->
+                globalPosition = position.positionInRoot()
+            },
+
         exit = slideOut { fullSize ->
             IntOffset(
                 -globalPosition.x.toInt() - (fullSize.width / 2) + (1280 / 2),
@@ -59,24 +93,19 @@ fun Card(
     ) {
         Box(
             modifier = Modifier
+                .border(2.dp, Color.White, RoundedCornerShape(5.dp))
                 .clip(RoundedCornerShape(5.dp))
-                .background(color = Color.White)
+                .background(color = Color.Black)
                 .size(
                     width = if (!vertical) cardSize else cardSize * cardRatio,
                     height = if (!vertical) cardSize * cardRatio else cardSize
                 )
-                .onPointerEvent(PointerEventType.Enter) {
-                    if (!hidden)
-                        Modifier.graphicsLayer { translationY = -20f }
 
-                }
-                .onPointerEvent(PointerEventType.Exit) {
-                    if (!hidden)
-                        Modifier.graphicsLayer { translationY = 0f }
-                }
                 .onClick {
-                    if (!hidden)
+                    if (!hidden) {
+                        isHovered = false
                         show = false
+                    }
                 }
         ) {
             if (hidden) {
@@ -93,7 +122,6 @@ fun Card(
                 )
             }
             Column(
-
                 modifier = Modifier
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -107,7 +135,7 @@ fun Card(
                 ) {
                     if (!hidden) {
                         Text(
-                            text = value,
+                            text = index.toString(),
                             color = Color.Black,
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold
@@ -127,7 +155,7 @@ fun Card(
 
 @Composable
 fun Table(
-    cards: List<List<String>>
+    cards: List<Int>
 ) {
     Row(
         modifier = Modifier.fillMaxSize(),
@@ -137,7 +165,8 @@ fun Table(
     {
         Column(
             modifier = Modifier
-                .wrapContentSize()
+                .wrapContentSize(),
+            verticalArrangement = Arrangement.Center
         ) {
             Hand(
                 vertical = true,
@@ -152,7 +181,6 @@ fun Table(
 
         ) {
             Hand(
-
                 cards = cards,
                 player = 2
             )
@@ -164,7 +192,9 @@ fun Table(
         }
         Column(
             modifier = Modifier
-                .wrapContentSize()
+                .wrapContentSize(),
+            verticalArrangement = Arrangement.Center
+
         ) {
             Hand(
                 vertical = true,
@@ -180,38 +210,63 @@ fun Table(
 @Composable
 fun Hand(
     vertical: Boolean = false,
-    cards: List<List<String>>,
+    cards: List<Int>,
     player: Int,
 ) {
-    if (!vertical) {
-        Row(
-            modifier = Modifier
-                .wrapContentSize(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+    val cardWidth = 120.dp
+    val cardHeight = (120 * 1.33333f).dp
+    val maxCards = 15
+    val cardSpacing = if (cards.size > 3) -(cardWidth * 0.7f) else (-20).dp
 
+    if (!vertical) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                modifier = Modifier
+                    .width(cardWidth + ((cards.size.coerceAtMost(maxCards) - 1) * cardSpacing))
+                    .height(cardHeight),
+                horizontalArrangement = Arrangement.spacedBy(cardSpacing),
             ) {
-            for (card in cards) {
-                Card(value = card[1], hidden = player != 0, index = cards.indexOf(card) * player)
+                cards.mapIndexed { index, card ->
+                    Card(
+                        value = card,
+                        hidden = player != 0,
+                        spacing = cards.size,
+                        index = index
+                    )
+                }
             }
         }
     } else {
-        Column(
-            modifier = Modifier
-                .wrapContentSize(Alignment.BottomCenter),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .height(cardHeight + ((cards.size.coerceAtMost(maxCards) - 1) * cardSpacing))
+                    .width(cardWidth),
+                verticalArrangement = Arrangement.spacedBy(cardSpacing),
             ) {
-            for (card in cards) {
-                Card(vertical = true, value = card[1], hidden = player != 0, index = cards.indexOf(card) * player)
+                cards.mapIndexed { index, card ->
+                    Card(
+                        vertical = true,
+                        value = card,
+                        hidden = player != 0,
+                        spacing = cards.size,
+                        index = index
+                    )
+                }
             }
         }
     }
 }
 
-
 @Composable
 fun ThePile(
-    cards: List<List<String>>,
+    cards: List<Int>,
     player: Int
 ) {
     Box(
@@ -221,7 +276,7 @@ fun ThePile(
             .padding(10.dp),
 
         ) {
-        Card(value = cards[cards.size - 1][1], hidden = player != 0, index = cards.size)
+        Card(value = cards[cards.size - 1], hidden = false, spacing = 0)
 
     }
 }
