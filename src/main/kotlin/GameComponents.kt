@@ -6,7 +6,6 @@ import androidx.compose.animation.slideOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -22,9 +21,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
+import game.ShitheadGame
 import kotlinx.coroutines.delay
 
 
@@ -127,21 +129,7 @@ fun Card(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (!hidden) {
-                        Text(
-                            text = index.toString(),
-                            color = Color.Black,
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+
             }
 
         }
@@ -157,55 +145,11 @@ fun Card(
 fun Table(
     cards: List<Int>
 ) {
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    var game by remember { mutableStateOf(ShitheadGame()) }
+    GameLayout(
+        game = game
     )
-    {
-        Column(
-            modifier = Modifier
-                .wrapContentSize(),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Hand(
-                vertical = true,
-                cards = cards,
-                player = 1
-            )
-        }
-        Column(
-            modifier = Modifier.fillMaxHeight().padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-
-        ) {
-            Hand(
-                cards = cards,
-                player = 2
-            )
-            ThePile(cards = cards, player = 0)
-            Hand(
-                cards = cards,
-                player = 0
-            )
-        }
-        Column(
-            modifier = Modifier
-                .wrapContentSize(),
-            verticalArrangement = Arrangement.Center
-
-        ) {
-            Hand(
-                vertical = true,
-                cards = cards,
-                player = 3
-            )
-        }
-
-    }
 }
-
 
 @Composable
 fun Hand(
@@ -220,13 +164,16 @@ fun Hand(
 
     if (!vertical) {
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(cardHeight)
+                .border(1.dp, Color.Yellow),
             contentAlignment = Alignment.Center
         ) {
             Row(
                 modifier = Modifier
                     .width(cardWidth + ((cards.size.coerceAtMost(maxCards) - 1) * cardSpacing))
-                    .height(cardHeight),
+                    .border(10.dp, Color.Green),
                 horizontalArrangement = Arrangement.spacedBy(cardSpacing),
             ) {
                 cards.mapIndexed { index, card ->
@@ -241,13 +188,13 @@ fun Hand(
         }
     } else {
         Box(
-            modifier = Modifier.fillMaxHeight(),
-            contentAlignment = Alignment.Center
+            modifier = Modifier
+                .width(cardWidth)
+                .height(cardHeight + ((cards.size.coerceAtMost(maxCards) - 1) * cardSpacing))
+                .border(1.dp, Color.Green)
         ) {
             Column(
-                modifier = Modifier
-                    .height(cardHeight + ((cards.size.coerceAtMost(maxCards) - 1) * cardSpacing))
-                    .width(cardWidth),
+                modifier = Modifier.matchParentSize(),
                 verticalArrangement = Arrangement.spacedBy(cardSpacing),
             ) {
                 cards.mapIndexed { index, card ->
